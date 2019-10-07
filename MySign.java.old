@@ -1,0 +1,104 @@
+/*
+ * Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+// package com.amazonaws.cloudhsm.examples;
+
+import com.cavium.cfm2.CFM2Exception;
+import com.cavium.cfm2.Util;
+import com.cavium.key.CaviumKey;
+import com.cavium.key.parameter.CaviumRSAKeyGenParameterSpec;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.nio.charset.Charset;
+
+/**
+ * This sample demonstrates high performance signing. Several threads are used to sign random data blobs. This
+ * sample contrasts two methods of signing. The recommended method passes a Key object, where the inefficient method
+ * passes a KeyStore and uses getKeyByHandle() to load the key in a loop.
+ *
+ * This sample relies on implicit login credentials.
+ * https://docs.aws.amazon.com/cloudhsm/latest/userguide/java-library-install.html#java-library-credentials
+ */
+public class MySign {
+    /**
+     * The main body of the sample with generate a key pair and then load that keypair from the KeyStore. Production
+     * applications will typically load a key from a KeyStore, not generate new keys each time.
+     * @param args
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidAlgorithmParameterException
+     * @throws NoSuchProviderException
+     */
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException {
+        try {
+            Security.addProvider(new com.cavium.provider.CaviumProvider());
+        } catch (IOException ex) {
+            System.out.println(ex);
+            return;
+        }
+
+        // In a production application we would search the KeyStore for a key that already exists in the HSM.
+        KeyStore keyStore = null;
+        try {
+            keyStore = KeyStore.getInstance("Cavium");
+            keyStore.load(null, null);
+        } catch (KeyStoreException | CertificateException ex) {
+            ex.printStackTrace();
+            return;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return;
+        }
+
+        System.out.println("Starting...");
+
+        try {
+                doSign((PrivateKey) keyStore.getKey("signing_key", null), "This is a sample text");
+                } catch (NoSuchAlgorithmException ex) {
+                    ex.printStackTrace();
+                    return;
+                } catch (UnrecoverableKeyException | KeyStoreException ex) {
+                    ex.printStackTrace();
+                    return;
+                }
+
+        System.out.println("Work completed");
+    }
+
+    /**
+     * sign that data using the passed key.
+     * @param signingKey
+     */
+    private static void doSign(PrivateKey signingKey, String text) {
+        byte[] bytes = text.getBytes(Charset.forName("UTF-8"));
+
+        try {
+            Signature signatureInstance = Signature.getInstance("SHA512withRSA/PSS", "Cavium");
+            signatureInstance.initSign(signingKey);
+            signatureInstance.update(bytes);
+            byte[] signature = signatureInstance.sign();
+            System.out.println(String(signature, Charset.forName("UTF-8")));
+        } catch (SignatureException ex) {
+            ex.printStackTrace();
+        } catch (NoSuchProviderException | InvalidKeyException | NoSuchAlgorithmException ex) {
+            ex.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
