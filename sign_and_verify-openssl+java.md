@@ -41,27 +41,26 @@ openssl pkcs12 -inkey private.pem -in cert1.pem -export -out private.pfx
 
 2. Create key file with no password for importing into CloudHSM
 
-    openssl rsa -in private-export.pem -out private-nopass.key -passin pass:mypassword
+<pre>openssl rsa -in private-export.pem -out private-nopass.key -passin pass:mypassword</pre>
 
 3. Log in to the CloudHSM
 
-    /opt/cloudhsm/bin/key_mgmt_util
-
-    loginHSM -u CU -s user -p password
+<pre>/opt/cloudhsm/bin/key_mgmt_util
+loginHSM -u CU -s user -p password</pre>
 
 4. Generate import keys on CloudHSM
 
-    genSymKey -l import -t 31 -s 32 
+<pre>genSymKey -l import -t 31 -s 32</pre> 
 
 5. Import keys to CloudHSM
 
-    importPrivateKey -l sign-demo-key-imported -f private-nopass.key -w <import_key_handle>
+<pre>importPrivateKey -l sign-demo-key-imported -f private-nopass.key -w &lt;import_key_handle&gt;</pre>
 
 6. Exit the CloudHSM key management agent
 
-    exit
+<pre>exit</pre>
 
 7. Delete the key file with no password
 
-    rm private-nopass.key
+<pre>rm private-nopass.key</pre>
 
