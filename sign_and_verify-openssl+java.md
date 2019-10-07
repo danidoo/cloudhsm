@@ -4,12 +4,12 @@
 
 (https://docs.aws.amazon.com/cloudhsm/latest/userguide/openssl-library-install.html)
 
-export n3fips_password=api_user:1234Qwer
+export n3fips_password=user:password
 
 java -cp .:/opt/cloudhsm/java/* MySign
 
 /opt/cloudhsm/bin/key_mgmt_util
-loginHSM -u CU -s api_user -p 1234Qwer
+loginHSM -u CU -s user -p password
 
 findKey -l signing_key -c 3
 
