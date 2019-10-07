@@ -36,9 +36,9 @@ openssl pkcs12 -inkey private.pem -in cert1.pem -export -out private.pfx
 
 ## Converting and importing PKCS12 keys into CloudHSM
 1. Convert PKCS12 file to PEM file
-<pre>
-    openssl pkcs12 -in private.pfx -nocerts -out private-export.pem -passin pass:mypassword -passout pass:mypassword
-</pre>
+
+<pre>openssl pkcs12 -in private.pfx -nocerts -out private-export.pem -passin pass:mypassword -passout pass:mypassword</pre>
+
 2. Create key file with no password for importing into CloudHSM
 
     openssl rsa -in private-export.pem -out private-nopass.key -passin pass:mypassword
