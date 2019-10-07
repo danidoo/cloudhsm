@@ -2,8 +2,8 @@
 
 ## OpenSSL environment setup
 
-(https://docs.aws.amazon.com/cloudhsm/latest/userguide/openssl-library-install.html)
-
+https://docs.aws.amazon.com/cloudhsm/latest/userguide/openssl-library-install.html
+<pre>
 export n3fips_password=user:password
 
 java -cp .:/opt/cloudhsm/java/* MySign
@@ -19,20 +19,19 @@ openssl req -engine cloudhsm -new -x509 -days 365 -subj '/CN=my key/' -sha256 -k
 
 openssl x509 -in certificate.crt -text -noout
 
-openssl dgst -engine cloudhsm -sha512 -sign fake_priv.key -out sign.txt.sha512 sign.txt
+openssl dgst -engine cloudhsm -sha256 -sign fake_priv.key -out sign.txt.sha256 sign.txt
 
 base64 sign.txt.sha256
 
 openssl dgst -sha256 -verify < (openssl x509 -in cert.pem  -pubkey -noout) -signature sign.txt.sha256 sign.txt
 
-vi cloudhsm.sign.txt.sha512.txt
-base64 -d cloudhsm.sign.txt.sha512.txt > cloudhsm.sign.txt.sha512
+vi cloudhsm.sign.txt.sha256.txt
+base64 -d cloudhsm.sign.txt.sha256.txt > cloudhsm.sign.txt.sha256
 openssl dgst -sha256 -verify <(openssl x509 -in cert.pem  -pubkey -noout) -signature cloudhsm.sign.txt.sha256 sign.txt
 
 openssl req -new -x509 -days 365 -subj '/CN=my key/' -sha256 -key private.pem -out cert1.pem
 
-openssl pkcs12 -inkey private.pem -in cert1.pem -export -out private.pfx
-
+</pre>
 
 ## Converting and importing PKCS12 keys into CloudHSM
 1. Convert PKCS12 file to PEM file
