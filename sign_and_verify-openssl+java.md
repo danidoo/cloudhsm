@@ -1,6 +1,7 @@
 # CloudHSM Sign operations
 
 ## OpenSSL environment setup
+
 (https://docs.aws.amazon.com/cloudhsm/latest/userguide/openssl-library-install.html)
 
 export n3fips_password=api_user:1234Qwer
@@ -35,9 +36,9 @@ openssl pkcs12 -inkey private.pem -in cert1.pem -export -out private.pfx
 
 ## Converting and importing PKCS12 keys into CloudHSM
 1. Convert PKCS12 file to PEM file
-
+<pre>
     openssl pkcs12 -in private.pfx -nocerts -out private-export.pem -passin pass:mypassword -passout pass:mypassword
-
+</pre>
 2. Create key file with no password for importing into CloudHSM
 
     openssl rsa -in private-export.pem -out private-nopass.key -passin pass:mypassword
