@@ -35,18 +35,32 @@ openssl pkcs12 -inkey private.pem -in cert1.pem -export -out private.pfx
 
 ## Converting and importing PKCS12 keys into CloudHSM
 1. Convert PKCS12 file to PEM file
+
     openssl pkcs12 -in private.pfx -nocerts -out private-export.pem -passin pass:mypassword -passout pass:mypassword
+
 2. Create key file with no password for importing into CloudHSM
+
     openssl rsa -in private-export.pem -out private-nopass.key -passin pass:mypassword
+
 3. Log in to the CloudHSM
+
     /opt/cloudhsm/bin/key_mgmt_util
+
     loginHSM -u CU -s user -p password
+
 4. Generate import keys on CloudHSM
+
     genSymKey -l import -t 31 -s 32 
+
 5. Import keys to CloudHSM
+
     importPrivateKey -l sign-demo-key-imported -f private-nopass.key -w <import_key_handle>
+
 6. Exit the CloudHSM key management agent
+
     exit
+
 7. Delete the key file with no password
+
     rm private-nopass.key
 
